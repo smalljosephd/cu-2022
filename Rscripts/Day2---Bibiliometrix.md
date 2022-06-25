@@ -1,3 +1,5 @@
+# Bibliometric Analysis with easyPubMed
+
 ## Load libraries
 
 For this exercise, we will use a - `easyPubMed` to fetch publication
@@ -248,7 +250,7 @@ texts includes any of the country in the downloaded table.
               
               auth_NotOkay$country[n] <- countries$Country[i]
               
-              cat(paste0("done ", countries$Country[i], "\n"))
+              # cat(paste0("done ", countries$Country[i], "\n"))
               
               break
               
@@ -257,95 +259,6 @@ texts includes any of the country in the downloaded table.
           }
           
         }
-
-    ## done Democratic Republic of the Congo
-    ## done Democratic Republic of the Congo
-    ## done Cameroon
-    ## done Cameroon
-    ## done Cameroon
-    ## done Cameroon
-    ## done Cameroon
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done Niger
-    ## done Indonesia
-    ## done Ethiopia
-    ## done Ethiopia
-    ## done Ethiopia
-    ## done Ethiopia
-    ## done Ethiopia
-    ## done Ethiopia
-    ## done Ethiopia
-    ## done Ethiopia
-    ## done Gambia
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done Germany
-    ## done Germany
-    ## done Kenya
-    ## done Kenya
-    ## done Kenya
-    ## done Ethiopia
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done Democratic Republic of the Congo
-    ## done Democratic Republic of the Congo
-    ## done Democratic Republic of the Congo
-    ## done Democratic Republic of the Congo
-    ## done Democratic Republic of the Congo
-    ## done Democratic Republic of the Congo
-    ## done Zambia
-    ## done Zambia
-    ## done Zambia
-    ## done Zimbabwe
-    ## done Zimbabwe
-    ## done Zimbabwe
-    ## done Zimbabwe
-    ## done Netherlands
-    ## done Zimbabwe
-    ## done Kenya
-    ## done Kenya
-    ## done Kenya
-    ## done Indonesia
-    ## done Indonesia
-    ## done China
-    ## done China
-    ## done China
-    ## done China
-    ## done China
 
 We could subsequently, manually code countries that may have been spelt
 differently or in another language, e.g. UK and United Kingdom. For
