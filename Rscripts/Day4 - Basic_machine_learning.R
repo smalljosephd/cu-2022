@@ -184,9 +184,11 @@ model_rf <- train(StHealth~.,
 result <- rbind("SVM" = cm_svm$byClass, 
                 "KNN" = cm_knn$byClass,
                 "LOGIT" = cm_logit$byClass, 
-                "RF" = cm_rf$byClass) %>% 
-              t() %>% data.frame() %>% 
+                "RF" = cm_rf$byClass) %>%
+              ## t() is used to transpose the data
+              t() %>% data.frame() %>%  
               rownames_to_column ("Metric") %>% 
+              ## Let's drop a few columns that are not so important.
               filter (Metric != "Prevalence" &
                         Metric != "Detection Rate" &
                         Metric != "Detection Prevalence")
