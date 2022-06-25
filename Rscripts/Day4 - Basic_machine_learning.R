@@ -3,8 +3,10 @@ library (compareGroups) #For nicely formatted descriptive tables
 library (mosaic) # For creating factors
 library (stargazer) #Nicely formatted regression models.
 library (caret) 
+library (tidyverse)
 library (randomForest)
 library (tidyr)
+library (kableExtra)
 library (glmnet) # for logit models in caret
 # If you are unable to load any of the package, remember to install.packages(pkg) and then rerun library(pkg)
 
@@ -90,7 +92,7 @@ createTable(cross_tab)
 #' try outcome ~ var1 + var2 + var3 + var4
 
 logit <- glm(StHealth ~ .,
-             data = train_data,
+             data = wvs_updt,
              family = binomial(link = "logit"))
 summary(logit)
 
@@ -98,8 +100,98 @@ summary(logit)
 
 stargazer(logit, ci = TRUE,
           type = "text", 
-          single.row = TRUE,
-          apply.coef = exp)
+          single.row = TRUE)
 
 
 ### What else can you do? Surprise us!
+
+## Machine Learning
+## ================
+
+anyNA(wvs_updt)  # here we check if there are any NAs in our dataset.
+
+wvs_updt_new <- drop_na(wvs_updt) # drop NAs
+
+#' In the blocks of code below we will partition the data into training and testing.
+#' Note that I have moved set.seed before shuffle and have assigned it to an object.
+#' Ideally we should have the same dataset after shuffling using the same seed value.
+#' 
+set.seed(419)
+wvs_updt_shuf <- shuffle(wvs_updt_new)
+wvs_updt_shuf <- wvs_updt_shuf %>% select(-c(orig.id))
+data_index <- createDataPartition(wvs_updt_shuf$StHealth, p=0.7, list = FALSE)
+train_data <- wvs_updt_shuf[data_index,]
+test_data <- wvs_updt_shuf[-data_index,]
+
+
+#' METHODOLOGY - We used a 10-fold cross validation with 10 repeats because it is a 
+#' standard way to improve the estimated performance of a machine learning model. 
+#' 
+#' The k-fold cross-validation procedure divides a limited dataset into k non-overlapping folds. 
+#' Each of the k folds is given an opportunity to be used as a held back test set, 
+#' whilst all other folds collectively are used as a training dataset.
+#' 
+#' This involves simply repeating the cross-validation procedure multiple times 
+#' and reporting the mean result across all folds from all runs.
+fitControl <- trainControl(method="repeatedcv",
+                           number = 10,
+                           repeats = 10,
+                           sampling = "smote",
+                           classProbs = TRUE,
+                           summaryFunction = twoClassSummary)
+
+model_svm <- train(StHealth~.,
+                   train_data,
+                   method="svmRadial",
+                   metric="ROC",
+                   trControl=fitControl)
+
+model_logit <- train(StHealth~.,
+                   train_data,
+                   method="glmnet",
+                   family = 'binomial',
+                   metric="ROC",
+                   trControl=fitControl)
+
+model_knn <- train(StHealth~.,
+                   train_data,
+                   method="knn",
+                   metric="ROC",
+                   trControl=fitControl)
+
+model_rf <- train(StHealth~.,
+                   train_data,
+                   method="rf",
+                   metric="ROC",
+                   trControl=fitControl)
+
+    ## Below, we have generated predictions based on each of the algorithms.
+    pred_rf <- predict(model_rf, test_data)
+    cm_rf <- confusionMatrix(pred_rf, test_data$StHealth, positive = "Good")
+
+    pred_logit <- predict(model_logit, test_data)
+    cm_logit <- confusionMatrix(pred_logit, test_data$StHealth, positive = "Good")
+    
+    pred_svm <- predict(model_svm, test_data)
+    cm_svm <- confusionMatrix(pred_svm, test_data$StHealth, positive = "Good")
+    
+    pred_knn <- predict(model_knn, test_data)
+    cm_knn <- confusionMatrix(pred_knn, test_data$StHealth, positive = "Good")
+    
+
+
+#summarize accuracy of models
+result <- rbind("SVM" = cm_svm$byClass, 
+                "KNN" = cm_knn$byClass,
+                "LOGIT" = cm_logit$byClass, 
+                "RF" = cm_rf$byClass) %>% 
+              t() %>% data.frame() %>% 
+              rownames_to_column ("Metric") %>% 
+              filter (Metric != "Prevalence" &
+                        Metric != "Detection Rate" &
+                        Metric != "Detection Prevalence")
+result
+result %>% kbl() %>%  kable_styling()
+
+
+## Which model do you think performed better?
